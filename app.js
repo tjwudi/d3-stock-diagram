@@ -35,14 +35,16 @@ d3.json('data.json', function(err, data) {
 
   bars.
     attr('class', function(d) {
-      var className = d.opening < d.closing ? 'type-raise' : 'type-fall';
+      var className = d.opening < d.closing ? 'bar-raise' : 'bar-fall';
       return (d3.select(this).attr('class') || '') + ' ' +  className;
     }).
     attr('width', function(d) {
       return xScale.rangeBand();
     }).
     attr('height', function(d) {
-      return Math.abs(yScale(d.opening) - yScale(d.closing));
+      var height = Math.abs(yScale(d.opening) - yScale(d.closing));
+      height = Math.max(height, 2);
+      return height;
     }).
     attr('x', function(d, i) {
       return xScale(i);
@@ -61,7 +63,7 @@ d3.json('data.json', function(err, data) {
 
   thinbars.
     attr('class', function(d) {
-      var className = d.opening < d.closing ? 'type-raise' : 'type-fall';
+      var className = d.opening < d.closing ? 'bar-raise' : 'bar-fall';
       return (d3.select(this).attr('class') || '') + ' ' +  className;
     }).
     attr('x', function(d, i) {

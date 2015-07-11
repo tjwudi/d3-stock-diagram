@@ -1,7 +1,11 @@
-.type-raise {
+.bar, .thinbar {
+  cursor: pointer;
+}
+
+.bar-raise {
   fill: red;
 }
 
-.type-fall {
+.bar-fall {
   fill: green;
 }
