@@ -5,9 +5,19 @@ d3.json('data.json', function(err, data) {
   var Y_PADDING_FACTOR = 1.3;
   var X_SCALE_LOWERBOUND = 0;
   var X_SCALE_UPPERBOUND = 200;
+  var margin = {
+    LEFT: 40,
+    TOP: 40,
+    RIGHT: 40,
+    BUTTOM: 40
+  };
 
-  var container = d3.select('#diagram');
-  container.attr('height', Y_SCALE_UPPERBOUND);
+  var container = d3.select('#diagram').
+    attr('height', margin.TOP + Y_SCALE_UPPERBOUND + margin.BUTTOM).
+    attr('width', margin.LEFT + X_SCALE_UPPERBOUND + margin.RIGHT);
+
+  var diagram = container.append('g').
+    attr('transform', 'translate('+margin.LEFT+','+margin.TOP+')');
 
   // y scale
   var yMin = d3.min(data, function(d) {
@@ -26,7 +36,7 @@ d3.json('data.json', function(err, data) {
     rangeRoundBands([X_SCALE_LOWERBOUND, X_SCALE_UPPERBOUND], 0.2);
 
   // Generate bars
-  var bars = container.
+  var bars = diagram.
     selectAll('rect.bar').
     data(data).
     enter().
@@ -54,7 +64,7 @@ d3.json('data.json', function(err, data) {
     });
 
   // Generate thin bars
-  var thinbars = container.
+  var thinbars = diagram.
     selectAll('rect.thinbar').
     data(data).
     enter().
@@ -78,4 +88,11 @@ d3.json('data.json', function(err, data) {
     attr('height', function(d) {
       return Math.abs(yScale(d.highest) - yScale(d.lowest));
     });
+
+  var yAxis = d3.svg.axis().
+    scale(yScale).
+    orient('left');
+  var yAxisGroup = container.append('g').
+    attr('transform', 'translate('+margin.LEFT+','+margin.TOP+')').
+    call(yAxis);
 });
