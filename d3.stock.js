@@ -28,7 +28,7 @@ d3.stock.create = function(selector, data) {
   this.yScale = d3.scale.linear().
     range([this.Y_SCALE_UPPERBOUND, this.Y_SCALE_LOWERBOUND]);
   this.xScale = d3.scale.ordinal().
-      rangeRoundBands([this.X_SCALE_LOWERBOUND, this.X_SCALE_UPPERBOUND]);
+      rangeRoundBands([this.X_SCALE_LOWERBOUND, this.X_SCALE_UPPERBOUND], 0.2);
 
   var parseDate = d3.time.format('%Y-%m-%d').parse;
   data.forEach(function(d) {
