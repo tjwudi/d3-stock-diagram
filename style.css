@@ -9,3 +9,11 @@
 .bar-fall {
   fill: green;
 }
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}

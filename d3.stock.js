@@ -10,7 +10,7 @@ d3.stock.create = function(selector, data) {
   this.Y_SCALE_UPPERBOUND = 200;
   this.Y_PADDING_FACTOR = 1.3;
   this.X_SCALE_LOWERBOUND = 0;
-  this.X_SCALE_UPPERBOUND = 200;
+  this.X_SCALE_UPPERBOUND = 500;
   this.margin = {
     LEFT: 40,
     TOP: 40,
@@ -25,6 +25,22 @@ d3.stock.create = function(selector, data) {
   this.diagram = this.container.append('g').
     attr('transform', 'translate('+this.margin.LEFT+','+this.margin.TOP+')');
 
+  this.yScale = d3.scale.linear().
+    range([this.Y_SCALE_UPPERBOUND, this.Y_SCALE_LOWERBOUND]);
+  this.xScale = d3.scale.ordinal().
+      rangeRoundBands([this.X_SCALE_LOWERBOUND, this.X_SCALE_UPPERBOUND]);
+
+  var parseDate = d3.time.format('%Y-%m-%d').parse;
+  data.forEach(function(d) {
+    d.date = parseDate(d.date);
+  });
+
+  this.update(data);
+};
+
+d3.stock.update = function(data) {
+  var that = this;
+
   // y scale
   var yMin = d3.min(data, function(d) {
     return d.lowest / that.Y_PADDING_FACTOR;
@@ -32,20 +48,15 @@ d3.stock.create = function(selector, data) {
   var yMax = d3.max(data, function(d) {
     return d.highest * that.Y_PADDING_FACTOR;
   });
-  this.yScale = d3.scale.linear().
-    domain([yMin, yMax]).
-    range([this.Y_SCALE_UPPERBOUND, this.Y_SCALE_LOWERBOUND]);
+  this.yScale.domain([yMin, yMax]);
 
   // x scale
-  this.xScale = d3.scale.ordinal().
-    domain(d3.range(0, data.length)).
-    rangeRoundBands([this.X_SCALE_LOWERBOUND, this.X_SCALE_UPPERBOUND], 0.2);
+  this.xScale.domain(d3.range(0, data.length));
+  this.xScaleTime = d3.time.scale().
+    range([this.X_SCALE_UPPERBOUND/(2*data.length), this.X_SCALE_UPPERBOUND - this.X_SCALE_UPPERBOUND/(2*data.length)]).
+    domain(d3.extent(data, function(d) { return d.date }));
 
-  this.update(data);
-};
-
-d3.stock.update = function(data) {
-  var that = this;
+  // Generate bars
   var bars = this.diagram.
     selectAll('rect.bar').
     data(data);
@@ -99,12 +110,23 @@ d3.stock.update = function(data) {
     });
   thinbars.exit().remove();
 
-  // Create axis
+  // Create y axis
   var yAxis = d3.svg.axis().
     scale(this.yScale).
     ticks(5).
     orient('left');
   var yAxisGroup = this.container.append('g').
     attr('transform', 'translate('+that.margin.LEFT+','+that.margin.TOP+')').
+    classed('axis', true).
     call(yAxis);
+
+  // Create x axis
+  var xAxis = d3.svg.axis().
+    scale(this.xScaleTime).
+    ticks(d3.time.day, 1).
+    orient('bottom');
+  var xAxisGroup = this.container.append('g').
+    attr('transform', 'translate('+this.margin.LEFT+','+(this.Y_SCALE_UPPERBOUND+this.margin.TOP)+')').
+    classed('axis', true).
+    call(xAxis);
 };
